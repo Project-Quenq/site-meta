@@ -1,10 +1,9 @@
-// netlify/functions/webapp_info.js
 const axios = require('axios');
 const { getPreviewFromContent } = require('link-preview-js');
 
-async function crawl(webapp_url){
-    if(!webapp_url) return null;
-    if(!webapp_url.toLowerCase().startsWith('https://') && !webapp_url.toLowerCase().startsWith('http://')){
+async function crawl(webapp_url) {
+    if (!webapp_url) return null;
+    if (!webapp_url.toLowerCase().startsWith('https://') && !webapp_url.toLowerCase().startsWith('http://')) {
         webapp_url = 'https://' + webapp_url;
     }
     let webapp = {
@@ -17,16 +16,16 @@ async function crawl(webapp_url){
     try {
         let response = await axios.get(webapp_url);
         response.url = response.config.url;
-        if(response.headers['x-frame-options'] != null){
+        if (response.headers['x-frame-options'] != null) {
             webapp.xframe_restricted = true;
         }
         let data = await getPreviewFromContent(response);
-        if(data.siteName && data.siteName.trim() !== ''){
+        if (data.siteName && data.siteName.trim() !== '') {
             webapp.name = data.siteName;
-        } else if(data.title && data.title.trim() !== ''){
+        } else if (data.title && data.title.trim() !== '') {
             webapp.name = data.title;
         }
-        if(data.favicons && data.favicons.length >= 1){
+        if (data.favicons && data.favicons.length >= 1) {
             webapp.icon = data.favicons[data.favicons.length - 1];
         }
         webapp.desc = data.description || '';
@@ -37,6 +36,18 @@ async function crawl(webapp_url){
 }
 
 exports.handler = async function(event, context) {
+    // Handle CORS preflight requests
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 204,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            }
+        };
+    }
+
     let webapp_url = event.headers.webapp_url;
     console.log(webapp_url);
 
@@ -46,7 +57,10 @@ exports.handler = async function(event, context) {
         statusCode: 200,
         body: JSON.stringify({ webapp }),
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*', // Allow all origins
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         }
     };
 };
