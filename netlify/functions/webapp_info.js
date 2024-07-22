@@ -42,13 +42,28 @@ exports.handler = async function(event, context) {
             statusCode: 204,
             headers: {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, webapp_url'
             }
         };
     }
 
+    // Get webapp_url from headers
     let webapp_url = event.headers.webapp_url;
+
+    if (!webapp_url) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'webapp_url header is required' }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, webapp_url'
+            }
+        };
+    }
+
     console.log(webapp_url);
 
     let webapp = await crawl(webapp_url);
@@ -58,9 +73,9 @@ exports.handler = async function(event, context) {
         body: JSON.stringify({ webapp }),
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*', // Allow all origins
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, webapp_url'
         }
     };
 };
