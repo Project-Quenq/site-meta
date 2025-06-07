@@ -9,7 +9,8 @@ async function crawl(webapp_url) {
     }
     let webapp = {
         url: webapp_url,
-        icon: '/res/icons/defaultapp.png',
+        icon: '/images/xp/icons/ApplicationWindow.png',
+        icon_data: null,
         name: 'Untitled Program',
         desc: '',
         xframe_restricted: false
@@ -43,6 +44,7 @@ async function crawl(webapp_url) {
                 const iconResponse = await axios.get(iconUrl, { responseType: 'arraybuffer' });
                 if (iconResponse.headers['content-type']?.startsWith('image/')) {
                     webapp.icon = iconUrl;
+                    webapp.icon_data = Buffer.from(iconResponse.data).toString('base64');
                 }
             } catch (e) {
                 console.error('Error fetching icon:', e.message);
