@@ -14,15 +14,15 @@ exports.handler = async function(event, context) {
     if (!query) return { statusCode: 400, body: 'Missing query', headers };
 
     try {
-        const bingUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
-        const response = await axios.get(bingUrl, { headers: { 'User-Agent': USER_AGENT } });
+        const aolUrl = `https://search.aol.com/aol/search?q=${encodeURIComponent(query)}`;
+        const response = await axios.get(aolUrl, { headers: { 'User-Agent': USER_AGENT } });
 
         const dom = new JSDOM(response.data);
         const doc = dom.window.document;
         const head = doc.head;
 
         const base = doc.createElement('base');
-        base.href = "https://www.bing.com/";
+        base.href = "https://search.aol.com/";
         if (head.firstChild) head.insertBefore(base, head.firstChild);
         else head.appendChild(base);
 
@@ -31,21 +31,37 @@ exports.handler = async function(event, context) {
             document.addEventListener('DOMContentLoaded', () => {
                 const METADATA_API = 'https://rxpappinstaller.netlify.app/.netlify/functions/metadata';
 
+                function getRealUrl(aolLink) {
+                    try {
+                        if (aolLink.includes('RU=')) {
+                            const match = aolLink.match(/RU=([^/&]+)/);
+                            if (match && match[1]) {
+                                return decodeURIComponent(match[1]);
+                            }
+                        }
+                    } catch(e) {}
+                    return aolLink;
+                }
+
                 async function checkAndNavigate(url) {
                     try {
-                        const resp = await fetch(METADATA_API, { headers: { 'target_url': url } });
+                        const finalUrl = getRealUrl(url);
+                        
+                        const resp = await fetch(METADATA_API, { headers: { 'target_url': finalUrl } });
                         const data = await resp.json();
                         const isRestricted = data.site && data.site.xframe_restricted;
 
+                        const destinationUrl = data.site && data.site.final_url ? data.site.final_url : finalUrl;
+
                         window.parent.postMessage({
                             action: 'rebornxp_navigation_request',
-                            url: url,
+                            url: destinationUrl,
                             isRestricted: isRestricted
                         }, '*');
                     } catch (e) {
                         window.parent.postMessage({
                             action: 'rebornxp_navigation_request',
-                            url: url,
+                            url: getRealUrl(url),
                             isRestricted: true
                         }, '*');
                     }
@@ -55,16 +71,20 @@ exports.handler = async function(event, context) {
                     const link = e.target.closest('a');
                     if (!link || !link.href) return;
 
-                    const isBingInternal = link.href.includes('bing.com') || link.getAttribute('href').startsWith('/');
+                    const href = link.href;
 
-                    if (!isBingInternal && link.href.startsWith('http')) {
+                    if (href.includes('/aol/search') || href.includes('/aol/image') || href.includes('/aol/video')) {
+                        return;
+                    }
+
+                    if (href.startsWith('http')) {
                         e.preventDefault();
                         e.stopPropagation();
                         
                         const originalText = link.innerText;
                         link.innerText = 'Loading...';
                         
-                        checkAndNavigate(link.href).finally(() => {
+                        checkAndNavigate(href).finally(() => {
                             link.innerText = originalText;
                         });
                     }
