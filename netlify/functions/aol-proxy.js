@@ -46,11 +46,8 @@ exports.handler = async function(event) {
 
         doc.querySelectorAll('a[target="_blank"]').forEach(a => a.removeAttribute('target'));
 
-        const navItems = doc.querySelector('.hd_nav_item');
-        if (navItems) navItems.remove();
-
-        const logo = doc.querySelector('#logo');
-        if (logo) logo.setAttribute('href', 'about:home');
+        const header = doc.querySelector('#sticky-hd');
+        if (header) header.remove();
 
         const script = doc.createElement('script');
         script.src = `https://rxpappinstaller.netlify.app/.netlify/functions/interceptor`;
