@@ -10,9 +10,7 @@ exports.handler = async function(event) {
         document.body.addEventListener('click', function(e) {
             const link = e.target.closest('a');
             
-            if (!link) return;
-
-            if (e.defaultPrevented) return;
+            if (!link || e.defaultPrevented) return;
 
             const hrefAttr = link.getAttribute('href');
             if (!hrefAttr || hrefAttr.startsWith('#') || hrefAttr.startsWith('javascript:')) return;
@@ -41,7 +39,7 @@ exports.handler = async function(event) {
             actionUrl.search = params.toString();
             
             handleNav(actionUrl.href);
-        });
+        }, true);
     `;
 
     return {
