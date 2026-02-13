@@ -49,8 +49,17 @@ exports.handler = async function(event) {
         const header = doc.querySelector('#sticky-hd');
         if (header) header.remove();
 
+        const header2 = doc.querySelector('header');
+        if (header2) header2.remove();
+
+        const footer = doc.querySelector('#ft_wrapper');
+        if (footer) footer.remove();
+
+        const footer2 = doc.querySelector('footer');
+        if (footer2) footer2.remove();
+
         const script = doc.createElement('script');
-        script.src = `https://rxpappinstaller.netlify.app/.netlify/functions/interceptor`;
+        script.src = `https://reborn-xp-api.netlify.app/.netlify/functions/interceptor`;
         doc.body.appendChild(script);
 
         return {

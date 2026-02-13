@@ -10,7 +10,9 @@ exports.handler = async function(event) {
         document.body.addEventListener('click', function(e) {
             const link = e.target.closest('a');
             
-            if (!link || e.defaultPrevented) return;
+            if (!link) return;
+
+            if (e.defaultPrevented) return;
 
             const hrefAttr = link.getAttribute('href');
             if (!hrefAttr || hrefAttr.startsWith('#') || hrefAttr.startsWith('javascript:')) return;
@@ -21,25 +23,6 @@ exports.handler = async function(event) {
                 handleNav(new URL(link.href, window.location.href).href);
             }
         });
-
-        document.body.addEventListener('submit', function(e) {
-            if (e.defaultPrevented) return;
-
-            const form = e.target;
-            e.preventDefault();
-            e.stopPropagation();
-
-            const formData = new FormData(form);
-            const params = new URLSearchParams();
-            for (const pair of formData.entries()) {
-                params.append(pair[0], pair[1]);
-            }
-
-            const actionUrl = new URL(form.action || window.location.href, window.location.href);
-            actionUrl.search = params.toString();
-            
-            handleNav(actionUrl.href);
-        }, true);
     `;
 
     return {
