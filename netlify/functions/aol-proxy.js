@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0';
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
 exports.handler = async function(event) {
     const headers = {
@@ -46,6 +46,12 @@ exports.handler = async function(event) {
 
         doc.querySelectorAll('a[target="_blank"]').forEach(a => a.removeAttribute('target'));
 
+        const navItems = doc.querySelector('.hd_nav_item');
+        if (navItems) navItems.remove();
+
+        const logo = doc.querySelector('#logo');
+        if (logo) logo.setAttribute('href', 'about:home');
+
         const script = doc.createElement('script');
         script.src = `https://rxpappinstaller.netlify.app/.netlify/functions/interceptor`;
         doc.body.appendChild(script);
@@ -59,7 +65,7 @@ exports.handler = async function(event) {
     } catch (error) {
         return {
             statusCode: 500,
-            body: `Error fetching or processing URL: ${error.message}`,
+            body: `Error: ${error.message}`,
             headers
         };
     }
