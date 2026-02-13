@@ -55,19 +55,14 @@ exports.handler = async function(event) {
         qooqleHeader.innerHTML = `
             <style>
                 #qooqle-results-navbar {
-                    background: #eeeeee;
-                    border-bottom: 1px solid #808080;
+                    background: #ffffff;
                     padding: 8px 15px;
                     font-family: "MS Gothic", monospace;
                     display: flex;
                     align-items: center;
-                    position: sticky;
-                    top: 0;
-                    z-index: 9999999;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
                 #q-logo {
-                    width: 70px;
+                    width: 100px;
                     cursor: pointer;
                     margin-right: 20px;
                 }
