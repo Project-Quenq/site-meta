@@ -50,6 +50,8 @@ exports.handler = async function(event) {
             if (el) el.remove();
         });
 
+        doc.querySelectorAll('a[target="_blank"]').forEach(a => a.removeAttribute('target'));
+
         const qooqleHeader = doc.createElement('div');
         qooqleHeader.id = 'qooqle-results-navbar';
         qooqleHeader.innerHTML = `
@@ -133,17 +135,17 @@ exports.handler = async function(event) {
                     const performSearch = () => {
                         const q = input.value.trim();
                         if (q) {
-                            window.parent.postMessage({ 
-                                action: 'search', 
-                                query: q, 
-                                type: currentType 
+                            window.parent.postMessage({
+                                action: 'search',
+                                query: q,
+                                type: currentType
                             }, '*');
                         }
                     };
 
                     btn.onclick = performSearch;
                     input.onkeypress = (e) => { if(e.key === 'Enter') performSearch(); };
-                    
+
                     logo.onclick = () => {
                         window.parent.postMessage({ action: 'navigate_to', url: 'about:home' }, '*');
                     };
