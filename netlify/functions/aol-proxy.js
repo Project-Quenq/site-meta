@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { JSDOM } = require('jsdom');
 
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0';
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 exports.handler = async function(event) {
     const headers = {
@@ -17,9 +17,23 @@ exports.handler = async function(event) {
 
     try {
         const response = await axios.get(targetUrl, {
-            headers: { 'User-Agent': USER_AGENT },
-            responseType: 'arraybuffer'
+            headers: { 
+                'User-Agent': USER_AGENT,
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://search.aol.com/'
+            },
+            responseType: 'arraybuffer',
+            validateStatus: () => true 
         });
+
+        if (response.status >= 400) {
+            return {
+                statusCode: response.status,
+                headers,
+                body: `Upstream AOL Error: ${response.status} ${response.statusText}`
+            };
+        }
 
         const contentType = response.headers['content-type'] || '';
         if (!contentType.includes('text/html')) {
