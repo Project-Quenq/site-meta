@@ -24,14 +24,19 @@ exports.handler = async function(event) {
                 'Referer': 'https://search.aol.com/'
             },
             responseType: 'arraybuffer',
-            validateStatus: () => true 
+            validateStatus: () => true
         });
 
         if (response.status >= 400) {
+            const rawBody = response.data.toString('utf-8');
+            console.log(`[AOL Proxy] Upstream Error: ${response.status} ${response.statusText}`);
+            console.log(`[AOL Proxy] Target: ${targetUrl}`);
+            console.log(`[AOL Proxy] Response Body:`, rawBody);
+
             return {
                 statusCode: response.status,
-                headers,
-                body: `Upstream AOL Error: ${response.status} ${response.statusText}`
+                headers: { ...headers, 'Content-Type': response.headers['content-type'] || 'text/html' },
+                body: rawBody
             };
         }
 
